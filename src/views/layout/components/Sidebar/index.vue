@@ -7,22 +7,40 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import SidebarItem from './SidebarItem'
-import ScrollBar from '@/components/ScrollBar'
+import { mapGetters } from "vuex";
+import SidebarItem from "./SidebarItem";
+import ScrollBar from "@/components/ScrollBar";
 
 export default {
   components: { SidebarItem, ScrollBar },
   computed: {
-    ...mapGetters([
-      'sidebar'
-    ]),
+    ...mapGetters(["sidebar"]),
     routes() {
-      return this.$router.options.routes
+      const permission = ["/login", "/404", "/", "tree"];
+      let newroutes = JSON.parse(JSON.stringify(this.$router.options.routes));
+      console.log(newroutes);
+      newroutes.forEach(item => {
+        if (permission.indexOf(item.path) === -1) {
+          item.hidden = true;
+        }
+        if (item.children) {
+          item.children.forEach(e => {
+            if (permission.indexOf(e.path) === -1) {
+              e.hidden = true;
+            } else {
+              item.hidden = false;
+            }
+          });
+        }
+      });
+      return newroutes;
     },
     isCollapse() {
-      return !this.sidebar.opened
+      return !this.sidebar.opened;
     }
+  },
+  mounted() {
+    console.log(this.$router);
   }
-}
+};
 </script>
