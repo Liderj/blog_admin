@@ -46,6 +46,13 @@ service.interceptors.response.use(
         type: "error",
         duration: 5 * 1000
       });
+    }
+    if (res.code == 403) {
+      Message({
+        message: res.message,
+        type: "error",
+        duration: 3 * 1000
+      });
     } else {
       return res;
     }

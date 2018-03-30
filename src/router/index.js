@@ -33,7 +33,7 @@ export const constantRouterMap = [
     path: "/",
     component: Layout,
     redirect: "/dashboard",
-    name: "Dashboard",
+    name: "主页",
     hidden: true,
     children: [
       {
@@ -44,23 +44,23 @@ export const constantRouterMap = [
   },
 
   {
-    path: "/example",
+    path: "/permission",
     component: Layout,
-    redirect: "/example/table",
-    name: "Example",
-    meta: { title: "Example", icon: "example" },
+    redirect: "/permission/p_list",
+    name: "权限管理",
+    meta: { title: "权限管理", icon: "example" },
     children: [
       {
-        path: "table",
-        name: "Table",
-        component: () => import("@/views/table/index"),
-        meta: { title: "Table", icon: "table" }
+        path: "p_list",
+        name: "权限列表",
+        component: () => import("@/views/permission/index"),
+        meta: { title: "权限列表", icon: "tree" }
       },
       {
-        path: "tree",
-        name: "Tree",
-        component: () => import("@/views/tree/index"),
-        meta: { title: "Tree", icon: "tree" }
+        path: "p_roles",
+        name: "角色列表",
+        component: () => import("@/views/permission/roles"),
+        meta: { title: "角色列表", icon: "tree" }
       }
     ]
   },

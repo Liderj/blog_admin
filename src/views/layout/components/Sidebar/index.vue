@@ -16,9 +16,8 @@ export default {
   computed: {
     ...mapGetters(["sidebar"]),
     routes() {
-      const permission = ["/login", "/404", "/", "tree"];
+      const permission = ["/login", "/404", "/", "p_list", "p_roles"];
       let newroutes = JSON.parse(JSON.stringify(this.$router.options.routes));
-      console.log(newroutes);
       newroutes.forEach(item => {
         if (permission.indexOf(item.path) === -1) {
           item.hidden = true;
