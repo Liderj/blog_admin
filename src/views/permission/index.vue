@@ -30,7 +30,7 @@
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
            <el-tooltip class="item" effect="dark" content="编辑" placement="bottom-start">
-              <i class="el-icon-edit action_icon" @click="openForm(scope.row.id)"></i>
+              <i class="el-icon-edit action_icon" @click="openForm(scope.row.id,scope.row.pid)"></i>
             </el-tooltip>
             <el-tooltip class="item" effect="dark" content="删除" placement="bottom-start">
               <i  class="el-icon-delete action_icon"  @click="openPermissionDialo(scope.row.id)"></i>
@@ -82,7 +82,7 @@
         <el-radio v-model="form.type" label="1">接口权限</el-radio>
       </el-form-item>
       <el-form-item label="父权限">
-         <el-select v-model="form.pid" filterable  placeholder="请选择">
+         <el-select v-model="form.pid" filterable  :disabled="form.pid =='0' && !!formType"  placeholder="请选择">
             <el-option label="顶级" value="0" >
             </el-option>
             <el-option
@@ -176,27 +176,35 @@ export default {
       this.actionRowId = id;
     },
     deletePer() {
-      deletePermission(this.actionRowId, { password: this.password }).then(
-        res => {
-          if (res.code == 200) {
-            this.$message({
-              message: res.message,
-              type: "success"
-            });
-            this.$router.go(0);
-          }
-          this.permissionDialog = !this.permissionDialog;
+      deletePermission(this.actionRowId, {
+        password: this.password
+      }).then(res => {
+        if (res.code == 200) {
+          this.$message({
+            message: res.message,
+            type: "success"
+          });
+          this.$router.go(0);
         }
-      );
+        this.permissionDialog = !this.permissionDialog;
+      });
     },
-    openForm(type) {
+    openForm(type, pid) {
       let self = this;
       this.formType = type;
       this.fromTitle = !!type ? "修改权限" : "添加权限";
       this.formDialog = !this.formDialog;
+      this.form = {
+        name: "",
+        type: "0",
+        pid: "0",
+        url: "",
+        status: true
+      };
       getList({
         page_size: 200,
-        type: 0
+        type: 0,
+        pid: 0
       }).then(res => {
         this.allPer = res.data.list;
         this.allPer.forEach(element => {
