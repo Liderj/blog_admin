@@ -20,3 +20,12 @@ export function deleteRole(id) {
         method: "post"
     });
 }
+
+export function updatePermission(id, data) {
+
+    return request({
+        url: `/api/roles/${id}/update_permission`,
+        method: "post",
+        data: data
+    });
+}

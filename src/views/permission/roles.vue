@@ -22,7 +22,7 @@
               <i  class="el-icon-delete action_icon"  @click="deleteRole(scope.row.id)"></i>
             </el-tooltip>
             <el-tooltip  v-if="scope.row.id!=1" class="item" effect="dark" content="分配权限" placement="bottom-start">
-              <i  class="el-icon-setting action_icon" @click="openPermission" ></i>
+              <i  class="el-icon-setting action_icon" @click="openPermission(scope.row.id)" ></i>
             </el-tooltip>
         </template>
 </el-table-column>
@@ -60,15 +60,15 @@
         </el-checkbox-group>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="formDialog = false">取 消</el-button>
-      <el-button type="primary" @click="submitForm">确 定</el-button>
+      <el-button @click="permissionDialog = false">取 消</el-button>
+      <el-button type="primary" @click="submitPermission">确 定</el-button>
     </span>
 </el-dialog>
 </div>
 </template>
 
 <script>
-import { allRoles, getRole, deleteRole } from "@/api/roles";
+import { allRoles, getRole, deleteRole, updatePermission } from "@/api/roles";
 import { getList } from "@/api/permission";
 import request from "@/utils/request";
 
@@ -94,9 +94,6 @@ export default {
 
   mounted() {
     this.getData();
-    setTimeout(() => {
-      console.log(this.permission);
-    }, 10000);
   },
   methods: {
     select() {
@@ -105,14 +102,6 @@ export default {
         if (a && this.permission.indexOf(a.pid) == -1) {
           this.permission.push(a.pid);
         }
-        // if (a) {
-        //   this.allPermission.push;
-        // }
-        // this.allPermission.forEach(i => {
-        //   if (element == i.id) {
-        //     console.log(i);
-        //   }
-        // });
       });
     },
     getData(search, type) {
@@ -177,9 +166,11 @@ export default {
         }
       });
     },
-    openPermission() {
+    openPermission(id) {
       this.permissionDialog = true;
       this.allPermission = [];
+      this.formType = id;
+      this.permission = [];
       getList({ page_size: 200 }).then(res => {
         this.sourceDate = res.data.list;
         res.data.list.forEach(element => {
@@ -199,6 +190,31 @@ export default {
             }
           });
         });
+      });
+      getRole(this.formType).then(res => {
+        if (res.code == 200 && res.data.permission_list) {
+          res.data.permission_list.forEach(element => {
+            this.permission.push(element.id);
+            if (element.child) {
+              element.child.forEach(i => {
+                this.permission.push(i.id);
+              });
+            }
+          });
+        }
+      });
+    },
+    submitPermission() {
+      updatePermission(this.formType, {
+        permissionId: this.permission
+      }).then(res => {
+        if (res.code == 200) {
+          this.$message({
+            message: res.message,
+            type: "success"
+          });
+          this.permissionDialog = false;
+        }
       });
     }
   }
