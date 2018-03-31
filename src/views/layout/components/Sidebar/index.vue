@@ -16,7 +16,17 @@ export default {
   computed: {
     ...mapGetters(["sidebar"]),
     routes() {
-      const permission = ["/login", "/404", "/", "p_list", "p_roles"];
+      const permission = [
+        "/login",
+        "/404",
+        "/",
+        "p_list",
+        "p_roles",
+        "users",
+        "admin",
+        "posts",
+        "categories"
+      ];
       let newroutes = JSON.parse(JSON.stringify(this.$router.options.routes));
       newroutes.forEach(item => {
         if (permission.indexOf(item.path) === -1) {

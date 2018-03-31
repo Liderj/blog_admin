@@ -21,68 +21,105 @@ import Layout from "../views/layout/Layout";
     icon: 'svg-name'             the icon show in the sidebar,
   }
 **/
-export const constantRouterMap = [
-  {
-    path: "/login",
-    component: () => import("@/views/login/index"),
-    hidden: true
-  },
-  { path: "/404", component: () => import("@/views/404"), hidden: true },
+export const constantRouterMap = [{
+        path: "/login",
+        component: () =>
+            import ("@/views/login/index"),
+        hidden: true
+    },
+    {
+        path: "/404",
+        component: () =>
+            import ("@/views/404"),
+        hidden: true
+    },
 
-  {
-    path: "/",
-    component: Layout,
-    redirect: "/dashboard",
-    name: "主页",
-    hidden: true,
-    children: [
-      {
-        path: "dashboard",
-        component: () => import("@/views/dashboard/index")
-      }
-    ]
-  },
+    {
+        path: "/",
+        component: Layout,
+        redirect: "/dashboard",
+        name: "主页",
+        hidden: true,
+        children: [{
+            path: "dashboard",
+            component: () =>
+                import ("@/views/dashboard/index")
+        }]
+    },
 
-  {
-    path: "/permission",
-    component: Layout,
-    redirect: "/permission/p_list",
-    name: "权限管理",
-    meta: { title: "权限管理", icon: "example" },
-    children: [
-      {
-        path: "p_list",
-        name: "权限列表",
-        component: () => import("@/views/permission/index"),
-        meta: { title: "权限列表", icon: "tree" }
-      },
-      {
-        path: "p_roles",
-        name: "角色列表",
-        component: () => import("@/views/permission/roles"),
-        meta: { title: "角色列表", icon: "tree" }
-      }
-    ]
-  },
+    {
+        path: "/permission",
+        component: Layout,
+        redirect: "/permission/p_list",
+        name: "权限管理",
+        meta: { title: "权限管理", icon: "example" },
+        children: [{
+                path: "p_list",
+                name: "权限列表",
+                component: () =>
+                    import ("@/views/permission/index"),
+                meta: { title: "权限列表", icon: "tree" }
+            },
+            {
+                path: "p_roles",
+                name: "角色列表",
+                component: () =>
+                    import ("@/views/permission/roles"),
+                meta: { title: "角色列表", icon: "tree" }
+            }
+        ]
+    },
+    {
+        path: "/user",
+        component: Layout,
+        redirect: "/user/users",
+        name: "用户管理",
+        meta: { title: "用户管理", icon: "example" },
+        children: [{
+                path: "users",
+                name: "用户列表",
+                component: () =>
+                    import ("@/views/user/index"),
+                meta: { title: "用户列表", icon: "tree" }
+            },
+            {
+                path: "admin",
+                name: "管理员列表",
+                component: () =>
+                    import ("@/views/user/admin"),
+                meta: { title: "管理员列表", icon: "tree" }
+            }
+        ]
+    },
+    {
+        path: "/post",
+        component: Layout,
+        redirect: "/post/posts",
+        name: "博客管理",
+        meta: { title: "博客管理", icon: "example" },
+        children: [
+            // {
+            //     path: "posts",
+            //     name: "博客列表",
+            //     component: () =>
+            //         import ("@/views/post/index"),
+            //     meta: { title: "文章列表", icon: "tree" }
+            // },
+            {
+                path: "categories",
+                name: "文章分类",
+                component: () =>
+                    import ("@/views/post/category"),
+                meta: { title: "文章分类", icon: "tree" }
+            },
+        ]
+    },
 
-  {
-    path: "/form",
-    component: Layout,
-    children: [
-      {
-        path: "index",
-        name: "Form",
-        component: () => import("@/views/form/index"),
-        meta: { title: "Form", icon: "form" }
-      }
-    ]
-  },
-
-  { path: "*", redirect: "/404", hidden: true }
+    { path: "*", redirect: "/404", hidden: true }
 ];
 
 export default new Router({
-  mode: "history", //后端支持可开
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRouterMap
+    mode: "history", //后端支持可开
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRouterMap
 });

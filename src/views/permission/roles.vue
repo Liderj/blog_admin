@@ -29,7 +29,6 @@
 </el-table>
 
 
-<!-- 删除弹窗 -->
 <el-dialog :title="fromTitle" :visible.sync="formDialog" width="30%">
     <el-form label-position='left' label-width="120px" :model="form" v-loading="detailLoading">
         <el-form-item label="名称">
