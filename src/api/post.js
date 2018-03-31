@@ -23,12 +23,25 @@ export function deletePost(id) {
 }
 export function disablePost(id) {
     return request({
-        url: `/api/user/${id}/disable`,
+        url: `/api/post/${id}/disable`,
         method: "post",
+    })
+}
+export function toggleHot(id) {
+    return request({
+        url: `/api/post/hot/${id}`,
+        method: "post"
+    })
+}
+export function toggleComment(id) {
+    return request({
+        url: `/api/post/comment/${id}`,
+        method: "post"
     })
 }
 
 
+// 分类api
 export function getCategory(params) {
     return request({
         url: `/api/category`,

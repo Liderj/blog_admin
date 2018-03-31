@@ -1,301 +1,144 @@
 <template>
-  <div class="app-container" v-loading="listLoading">
+  <div class="app-container" >
     <div class="header">
       <el-input style="width:40%" placeholder="搜索文章标题" v-model="search" class="input-with-select">
-        <el-select v-model="status" slot="prepend" placeholder="所有文章">
-          <el-option label="正常" value="1"></el-option>
-          <el-option label="关闭" value="0"></el-option>
-        </el-select>
-        <el-button slot="append" icon="el-icon-search" @click="getData(1)"></el-button>
-      </el-input>
+          <el-select v-model="status" slot="prepend" placeholder="所有文章">
+            <el-option label="正常" value="1"></el-option>
+            <el-option label="关闭" value="0"></el-option>
+          </el-select>
+          <el-select style="margin-left:50px" v-model="type" slot="prepend" placeholder="所有分类">
+            <el-option v-for="item in allCategory" :label="item.name" :value="item.id" :key="item.id"></el-option>
+          </el-select>
+          <el-button slot="append" icon="el-icon-search" @click="getData(1)"></el-button>
+        </el-input>
     </div>
-    <el-table :data="list" border style="width: 100%;margin-top:10px"  v-loading="listLoading">
-      <el-table-column prop="id" label="ID" width="150">
-        <template slot-scope="scope">
-        {{scope.row.id}}
-        <el-tag v-if="scope.row.id == nowID" type="success">自己</el-tag>
-        </template>
+      <el-table :data="list" border style="width: 100%;margin-top:10px"  v-loading="listLoading">
+      <el-table-column prop="id" label="ID" width="100">
       </el-table-column>
-      <el-table-column prop="avatar" label="头像" width="200">
-        <template slot-scope="scope">
-         <img :src="scope.row.avatar" >
-        </template>
+      <el-table-column prop="user" label="发布者" width="150">
       </el-table-column>
-      <el-table-column prop="mobile" label="手机">
+      <el-table-column prop="title" label="标题/内容">
       </el-table-column>
-      <el-table-column prop="nickname" label="昵称"  width="280">
+      <el-table-column prop="likes" label="点赞数"  width="100">
       </el-table-column>
-      <el-table-column prop="sex" label="性别"  width="100">
-        <template slot-scope="scope">
-          <span v-if="scope.row.sex ==1">男</span>
-          <span v-if="scope.row.sex ==2">女</span>
-          <span v-if="scope.row.sex ==3">保密</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="status" label="状态" width="200">
+      <el-table-column prop="status" label="状态" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status ?'success':'danger'">{{scope.row.status ?'正常':'锁定'}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="300">
+      <el-table-column prop="is_hot" label="热推" width="100">
         <template slot-scope="scope">
-          <div v-if="scope.row.id !=1 && scope.row.id!=nowID">
+          <el-tag :type="scope.row.is_hot ?'success':'danger'">{{scope.row.is_hot ?'是':'否'}}</el-tag>
+        </template>
+      </el-table-column>
+       <el-table-column prop="is_comment" label="是否允许评论" width="120">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.is_comment ?'success':'danger'">{{scope.row.is_comment ?'允许':'不允许'}}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="created_at" label="发布时间" width="200">
+      </el-table-column>
+      <el-table-column label="操作" width="400">
+        <template slot-scope="scope">
           <el-tooltip class="item" effect="dark" content="查看详情" placement="bottom-start">
-              <i class="el-icon-edit action_icon" @click="showUserDetail(scope.row.id)"></i>
+              <i class="el-icon-view action_icon"></i>
             </el-tooltip>
-            <el-tooltip v-if="nowID ==1" class="item" effect="dark" content="删除" placement="bottom-start">
-              <i  class="el-icon-delete action_icon" @click="openPermissionDialog(scope.row.id)"></i>
+            <el-tooltip  class="item" effect="dark" content="删除" placement="bottom-start">
+              <i  class="el-icon-delete action_icon" ></i>
             </el-tooltip>
-            <el-button :type="scope.row.status ?'danger':'success'" @click="updateStatus(scope.row.id,scope.row.status)"  size="small">{{scope.row.status ?'锁定':'解锁'}}</el-button>
-        
-          </div>
+            <el-button :type="scope.row.status ?'danger':'success'"  size="small" @click="_disablePost(scope.row)">{{scope.row.status ?'关闭':'开启'}}</el-button>
+            <el-button :type="scope.row.is_hot ?'danger':'success'"  size="small"  @click="_toggleHot(scope.row)">{{scope.row.is_hot ?'取消推荐':'推荐'}}</el-button>
+            <el-button :type="scope.row.is_comment ?'danger':'success'"  size="small"   @click="_toggleComment(scope.row)">{{scope.row.is_comment ?'关闭评论':'开启评论'}}</el-button>
            </template>
       </el-table-column>
     </el-table>
-    <el-pagination
+     <el-pagination
       style="margin-top: 15px;"
       background
       layout="prev, pager, next"
       @current-change="getData"
       :total="total">
     </el-pagination>
-  <el-dialog
-    title="管理员详情"
-    :visible.sync="formDialog"
-    width="30%"
-    >
-        <el-form label-position='left'  label-width="120px" :model="form" v-loading="detailLoading" >
-      <el-form-item label="手机号">
-        <el-input v-model="form.mobile" :disabled="true"></el-input>
-      </el-form-item>
-      <el-form-item label="昵称">
-        <el-input v-model="form.nickname" :disabled="nowID !=1"></el-input>
-      </el-form-item>
-      <el-form-item label="登录密码" v-if="nowID ==1">
-        <el-button   @click="passwordInput =!passwordInput" type="password" size="small">{{passwordInput?'取消修改':'修改密码'}}</el-button>
-        <el-input
-          v-if = "passwordInput"
-          placeholder="请输入密码"
-          v-model="form.password"
-          clearable>
-        </el-input>
-      </el-form-item>
-      <el-form-item label="头像">
-             <img :src="form.avatar" alt="">
-      </el-form-item>
-      <el-form-item label="性别">
-          <el-radio-group v-model="form.sex" :disabled="nowID !=1">
-            <el-radio :label="1">男</el-radio>
-            <el-radio :label="2">女</el-radio>
-            <el-radio :label="3">保密</el-radio>
-          </el-radio-group>
-      </el-form-item>
-      <el-form-item label="类型">
-               <el-radio-group v-model="form.type" disabled>
-            <el-radio :label="1">普通用户</el-radio>
-            <el-radio :label="0">管理用户</el-radio>
-          </el-radio-group>
-      </el-form-item>
-      <el-form-item label="角色">
-         <el-select v-model="form.roles" filterable :disabled="nowID !=1"   placeholder="请选择">
-            <el-option
-              v-for="item in allRoles"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-              :disabled="item.id==1">
-            </el-option>
-          </el-select>
-      </el-form-item>
-      <el-form-item label="状态" >
-        <el-switch
-          v-model="form.status"
-         >
-        </el-switch>
-      </el-form-item>
-    </el-form>
-    <span slot="footer" class="dialog-footer">
-      <el-button @click="formDialog = false">取 消</el-button>
-      <el-button type="primary" @click="updateUser(form.id)">确 定</el-button>
-    </span>
-  </el-dialog>
-
-
-   <!-- 密码验证弹窗 -->
-    <el-dialog
-      title="提示"
-      :visible.sync="permissionDialog"
-      width="40%"
-      >
-      <el-alert
-      style="margin:10px 0"
-      type="warning"
-      description="删除此用户将删除用户所有数据且无法恢复"
-      show-icon
-      title="强烈警告"
-      :closable="false">
-       </el-alert>
-      <el-input type="password" v-model="verifyPassword" placeholder="请输入登录密码"></el-input>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="permissionDialog = false">取 消</el-button>
-        <el-button type="primary" @click="deleteU" :loading="btnLoading">确 定</el-button>
-      </span>
-    </el-dialog>
+  
   </div>
 </template>
 
 <script>
 import {
   getCategory,
-  updateCategory,
-  updateCategory,
-  deleteCategory
+  getAllPost,
+  getPost,
+  deletePost,
+  toggleHot,
+  toggleComment,
+  disablePost
 } from "@/api/post";
-
 export default {
   data() {
     return {
       list: [],
       listLoading: false,
       detailLoading: false,
-      type: "",
+      type: null,
       status: null,
       search: "",
       total: 0,
-      formDialog: false,
-      allRoles: [],
-      passwordInput: false,
-      form: {
-        id: null,
-        avatar: "",
-        nickname: "",
-        mobile: "",
-        roles: 2,
-        sex: 1,
-        status: true,
-        type: 1,
-        password: ""
-      },
-      permissionDialog: false,
-      verifyPassword: "",
-      deleteID: null,
-      btnLoading: false
+      allCategory: []
     };
   },
-  computed: {
-    nowID: function() {
-      return this.$store.state.user.info.id;
-    }
-  },
   mounted() {
-    this.getData();
+    getCategory().then(res => (this.allCategory = res.data));
+    this.getData(1);
   },
   methods: {
     getData(page) {
-      this.listLoading = true;
-      getAllUser({
+      getAllPost({
+        page: page,
         search: this.search,
-        type: 0,
         status: this.status,
-        page: page
+        type: this.type
       }).then(res => {
-        this.listLoading = false;
-        if (!res.data.list) {
-          this.$message({
-            message: "未搜索到相关用户",
-            type: "warning"
-          });
-          return;
-        }
-        res.data.list.forEach(element => {
-          element.status == 1
-            ? (element.status = true)
-            : (element.status = false);
-          element.status == 1;
-        });
         this.list = res.data.list;
         this.total = res.data.count;
       });
     },
-    showUserDetail(id) {
-      this.formDialog = true;
-      this.detailLoading = true;
-      this.passwordInput = false;
-      allRoles().then(res => {
-        this.allRoles = res.data;
-      });
-      getUser(id).then(res => {
-        this.form = res.data;
-        this.form.roles = res.data.roles.id;
-        this.form.status = res.data.status ? true : false;
-
-        this.detailLoading = false;
-      });
-    },
-    updateUser(id) {
-      let req = {
-        nickname: this.form.nickname,
-        sex: this.form.sex,
-        status: this.form.status ? 1 : 0,
-        roles: this.form.roles
-      };
-      if (this.passwordInput && this.form.password) {
-        req.password = this.form.password;
-      }
-      updateUserDetail(id, req).then(res => {
+    _disablePost(post) {
+      disablePost(post.id).then(res => {
         if (res.code == 200) {
-          this.$message({
-            message: res.message,
-            type: "success"
-          });
-          this.formDialog = false;
-          this.getData();
-        }
-      });
-    },
-    openPermissionDialog(id) {
-      this.deleteID = null;
-      this.permissionDialog = !this.permissionDialog;
-      this.deleteID = id;
-    },
-    deleteU() {
-      this.btnLoading = true;
-      deleteUser(this.deleteID, { password: this.verifyPassword }).then(res => {
-        this.btnLoading = false;
-        if (res.code == 200) {
-          this.permissionDialog = !this.permissionDialog;
           this.$notify({
             title: "成功",
             message: res.message,
             type: "success"
           });
+          this.list.find(e => e.id == post.id).status = !post.status;
+          if (!post.status) {
+            this.list.find(e => e.id == post.id).is_comment = !post.is_comment;
+          }
         }
-        this.getData();
       });
     },
-    updateStatus(id, staus) {
-      this.$confirm(`此操作将 ${staus ? "使用户无法登录" : "解锁该用户账号"}, 是否继续?`, "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(() => {
-        const loading = this.$loading({
-          lock: true,
-          text: "Loading",
-          spinner: "el-icon-loading",
-          background: "rgba(0, 0, 0, 0.7)"
-        });
-        disableUser(id).then(res => {
-          loading.close();
-          if (res.code == 200) {
-            this.$notify({
-              title: "成功",
-              message: res.message,
-              type: "success"
-            });
-            this.list.find(e => e.id == id).status = !staus;
-          }
-        });
+    _toggleComment(post) {
+      toggleComment(post.id).then(res => {
+        if (res.code == 200) {
+          this.$notify({
+            title: "成功",
+            message: res.message,
+            type: "success"
+          });
+          this.list.find(e => e.id == post.id).is_comment = !post.is_comment;
+        }
+      });
+    },
+    _toggleHot(post) {
+      toggleHot(post.id).then(res => {
+        if (res.code == 200) {
+          this.$notify({
+            title: "成功",
+            message: res.message,
+            type: "success"
+          });
+          this.list.find(e => e.id == post.id).is_hot = !post.is_hot;
+        }
       });
     }
   }
@@ -306,9 +149,6 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-.el-table .success-row {
-  background: #f0f9eb;
 }
 .action_icon {
   font-size: 20px;

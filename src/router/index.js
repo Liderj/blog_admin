@@ -98,13 +98,7 @@ export const constantRouterMap = [{
         name: "博客管理",
         meta: { title: "博客管理", icon: "example" },
         children: [
-            // {
-            //     path: "posts",
-            //     name: "博客列表",
-            //     component: () =>
-            //         import ("@/views/post/index"),
-            //     meta: { title: "文章列表", icon: "tree" }
-            // },
+
             {
                 path: "categories",
                 name: "文章分类",
@@ -112,6 +106,20 @@ export const constantRouterMap = [{
                     import ("@/views/post/category"),
                 meta: { title: "文章分类", icon: "tree" }
             },
+            {
+                path: "posts",
+                name: "博客列表",
+                component: () =>
+                    import ("@/views/post/index"),
+                meta: { title: "博客列表", icon: "tree" }
+            },
+            {
+                path: "top_10",
+                name: "热推博文",
+                component: () =>
+                    import ("@/views/post/top_10"),
+                meta: { title: "热推博文", icon: "tree" }
+            }
         ]
     },
 
