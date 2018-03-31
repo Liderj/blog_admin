@@ -8,15 +8,16 @@
       </el-table-column>
       <el-table-column prop="name" label="名称">
       </el-table-column>
-     
       <el-table-column label="操作" width="150">
          <template slot-scope="scope">
+               <div v-if="scope.row.id !=1 && scope.row.id!=2">
            <el-tooltip class="item" effect="dark" content="编辑" placement="bottom-start">
-              <i class="el-icon-edit action_icon"></i>
+              <i class="el-icon-edit action_icon"  @click="openForm(scope.row)"></i>
             </el-tooltip>
             <el-tooltip class="item" effect="dark" content="删除" placement="bottom-start">
-              <i  class="el-icon-delete action_icon"  ></i>
+              <i  class="el-icon-delete action_icon"  @click="openPermissionDialog(scope.row.id)"></i>
             </el-tooltip>
+               </div>
         </template>
         </el-table-column>
 </el-table>
@@ -48,10 +49,10 @@
       title="强烈警告"
       :closable="false">
        </el-alert>
-      <el-input type="password" v-model="verifyPassword" placeholder="请输入登录密码"></el-input>
+      <el-input type="password" v-model="password" placeholder="请输入登录密码"></el-input>
       <span slot="footer" class="dialog-footer">
         <el-button @click="permissionDialog = false">取 消</el-button>
-        <el-button type="primary" @click="deleteU" :loading="btnLoading">确 定</el-button>
+        <el-button type="primary" @click="deleteC" :loading="btnLoading">确 定</el-button>
       </span>
     </el-dialog>
 </div>
@@ -64,7 +65,6 @@ import {
   updateCategory,
   deleteCategory
 } from "@/api/post";
-import request from "@/utils/request";
 
 export default {
   data() {
@@ -73,8 +73,8 @@ export default {
       listLoading: false,
       detailLoading: false,
       form: {
-        name: "",
-        status: true
+        id: null,
+        name: ""
       },
       fromTitle: "",
       formType: 0,
@@ -82,7 +82,9 @@ export default {
       permissionDialog: false,
       allPermission: [],
       permission: [],
-      sourceDate: []
+      sourceDate: [],
+      password: null,
+      btnLoading: false
     };
   },
 
@@ -102,51 +104,44 @@ export default {
       this.listLoading = true;
       getCategory().then(res => {
         this.listLoading = false;
-
         this.list = res.data;
       });
     },
-    deleteRole(id) {
-      this.$confirm("确认删除？").then(() => {
-        deleteRole(id).then(res => {
-          if (res.code == 200) {
-            this.$message({
-              message: res.message,
-              type: "success"
-            });
-            this.getData();
-          }
-        });
+    deleteC(id) {
+      deleteCategory(this.actionRowId, {
+        password: this.password
+      }).then(res => {
+        if (res.code == 200) {
+          this.permissionDialog = !this.permissionDialog;
+          this.$notify({
+            title: "成功",
+            message: res.message,
+            type: "success"
+          });
+          this.getData();
+        }
       });
     },
     openForm(type) {
       let self = this;
       this.formType = type;
-      this.fromTitle = !!type ? "修改角色" : "添加角色";
+      this.fromTitle = !!type ? "修改分类" : "添加分类";
       this.formDialog = !this.formDialog;
       this.form = {
-        name: "",
-        status: true
+        id: null,
+        name: ""
       };
       if (!!this.formType) {
-        this.detailLoading = true;
-        getRole(this.formType).then(res => {
-          if (res.code == 200) {
-            self.form.status = res.data.status == 1 ? true : false;
-            self.form.name = res.data.name;
-            this.detailLoading = false;
-          }
-        });
+        this.form = JSON.parse(JSON.stringify(type));
       }
     },
     submitForm() {
-      let postUrl = !this.formType
-        ? "/api/roles/create"
-        : `/api/roles/${this.formType}/update`;
       let postVal = this.form;
-      postVal.status = postVal.status ? 1 : 0;
-      request.post(postUrl, postVal).then(res => {
-        if (res.code != 400) {
+      let postReq = !this.formType
+        ? createCategory({ name: postVal.name })
+        : updateCategory(postVal.id, { name: postVal.name });
+      postReq.then(res => {
+        if (res.code == 200) {
           this.formDialog = false;
           this.$message({
             message: res.message,
