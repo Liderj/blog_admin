@@ -16,9 +16,8 @@ export function getPost(id) {
 
 export function deletePost(id) {
     return request({
-        url: `/api/post/destroy/{/${id}`,
-        method: "delete",
-        data: data
+        url: `/api/post/destroy/${id}`,
+        method: "post",
     })
 }
 export function disablePost(id) {
@@ -39,7 +38,12 @@ export function toggleComment(id) {
         method: "post"
     })
 }
-
+export function getTop() {
+    return request({
+        url: `/api/post/top`,
+        method: 'get'
+    })
+}
 
 // 分类api
 export function getCategory(params) {

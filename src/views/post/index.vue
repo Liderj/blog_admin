@@ -19,7 +19,7 @@
       </el-table-column>
       <el-table-column prop="title" label="标题/内容">
       </el-table-column>
-      <el-table-column prop="likes" label="点赞数"  width="100">
+      <el-table-column prop="category" label="所属分类"  width="100">
       </el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template slot-scope="scope">
@@ -41,10 +41,10 @@
       <el-table-column label="操作" width="400">
         <template slot-scope="scope">
           <el-tooltip class="item" effect="dark" content="查看详情" placement="bottom-start">
-              <i class="el-icon-view action_icon"></i>
+              <i class="el-icon-view action_icon" @click="openDialog(scope.row.id)"></i>
             </el-tooltip>
             <el-tooltip  class="item" effect="dark" content="删除" placement="bottom-start">
-              <i  class="el-icon-delete action_icon" ></i>
+              <i  class="el-icon-delete action_icon" @click="_deletePost(scope.row.id)" ></i>
             </el-tooltip>
             <el-button :type="scope.row.status ?'danger':'success'"  size="small" @click="_disablePost(scope.row)">{{scope.row.status ?'关闭':'开启'}}</el-button>
             <el-button :type="scope.row.is_hot ?'danger':'success'"  size="small"  @click="_toggleHot(scope.row)">{{scope.row.is_hot ?'取消推荐':'推荐'}}</el-button>
@@ -60,6 +60,34 @@
       :total="total">
     </el-pagination>
   
+
+  <el-dialog
+  :title="post.cid !=2?post.title:'微博'"
+  :visible.sync="postDialogVisible"
+  width="30%"
+  center>
+  <div class="content"  v-loading="detailLoading">
+      <div class="author">
+         <img :src="post.author.avatar" >
+       <span v-text="post.author.nickname"></span> 
+       <span>发布时间:{{post.created_at}}</span> 
+       <el-tag :type="post.cid ==1?'info':'success'">{{post.category}}</el-tag>
+      </div>
+      <div class="post_img">
+        <span>配图</span>
+        <div class="img_list"  v-if="post.img">
+          <el-carousel trigger="click" height="150px">
+            <el-carousel-item  v-for="(item,index) in post.img" :key="index">
+              <a :href="item" target="_blank">
+                <img :src="item"  >
+              </a>
+            </el-carousel-item>
+          </el-carousel>
+        </div>
+      </div>
+      <div class="post_content" v-html="post.cid !=2?post.content:post.title"></div>
+  </div>
+</el-dialog>
   </div>
 </template>
 
@@ -83,7 +111,24 @@ export default {
       status: null,
       search: "",
       total: 0,
-      allCategory: []
+      allCategory: [],
+      post: {
+        author: {
+          avatar: "",
+          nickname: ""
+        },
+        category: "",
+        content: null,
+        created_at: null,
+        id: null,
+        img: [],
+        is_comment: 1,
+        is_hot: 0,
+        likes: 0,
+        status: 1,
+        title: ""
+      },
+      postDialogVisible: false
     };
   },
   mounted() {
@@ -140,11 +185,38 @@ export default {
           this.list.find(e => e.id == post.id).is_hot = !post.is_hot;
         }
       });
+    },
+    _deletePost(id) {
+      this.$confirm("确认删除？").then(() => {
+        deletePost(id).then(res => {
+          if (res.code == 200) {
+            this.$message({
+              message: res.message,
+              type: "success"
+            });
+            this.list = this.list.splice(
+              this.list.findIndex(i => i.id == 5) + 1,
+              1
+            );
+          }
+        });
+      });
+    },
+    openDialog(id) {
+      this.postDialogVisible = !this.postDialogVisible;
+      this.detailLoading = true;
+      getPost(id).then(res => {
+        this.detailLoading = false;
+        if (res.code == 200) {
+          this.post = res.data;
+          this.post.img = res.data.img.split(",");
+        }
+      });
     }
   }
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .header {
   display: flex;
   justify-content: space-between;
@@ -160,5 +232,20 @@ export default {
 }
 .input-with-select .el-input-group__prepend {
   background-color: #fff;
+}
+.el-dialog--center .el-dialog__body {
+  padding: 0;
+}
+.content {
+  font-size: 14px;
+  .post_content {
+    margin-top: 20px;
+  }
+  .post_img {
+    margin-top: 20px;
+    img {
+      width: 100%;
+    }
+  }
 }
 </style>

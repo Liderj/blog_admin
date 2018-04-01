@@ -46,7 +46,7 @@
 <script>
 import {
   getCategory,
-  getAllPost,
+  getTop,
   getPost,
   deletePost,
   disablePost
@@ -70,12 +70,9 @@ export default {
   },
   methods: {
     getData(page) {
-      getAllPost({
-        page: page,
-        hot: 1
-      }).then(res => {
-        this.list = res.data.list;
-        this.total = res.data.count;
+      getTop().then(res => {
+        this.list = res.data;
+        this.list.sort((a, b) => b - a);
       });
     }
   }
