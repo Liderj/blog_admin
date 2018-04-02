@@ -197,10 +197,7 @@ export default {
               message: res.message,
               type: "success"
             });
-            this.list = this.list.splice(
-              this.list.findIndex(i => i.id == 5) + 1,
-              1
-            );
+            this.list.splice(this.list.findIndex(i => i.id == id), 1);
           }
         });
       });

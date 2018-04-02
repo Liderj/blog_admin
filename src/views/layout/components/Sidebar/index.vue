@@ -26,7 +26,9 @@ export default {
         "admin",
         "posts",
         "categories",
-        "top_10"
+        "top_10",
+        "c_index",
+        "keywords"
       ];
       let newroutes = JSON.parse(JSON.stringify(this.$router.options.routes));
       newroutes.forEach(item => {
