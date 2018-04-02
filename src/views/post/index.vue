@@ -64,7 +64,7 @@
   <el-dialog
   :title="post.cid !=2?post.title:'微博'"
   :visible.sync="postDialogVisible"
-  width="30%"
+  width="50%"
   center>
   <div class="content"  v-loading="detailLoading">
       <div class="author">
@@ -72,11 +72,13 @@
        <span v-text="post.author.nickname"></span> 
        <span>发布时间:{{post.created_at}}</span> 
        <el-tag :type="post.cid ==1?'info':'success'">{{post.category}}</el-tag>
+       <span>点赞数:{{post.likes}}</span> 
+         <img src="../../../static/img/hot_light.png" style="width:18px"  v-if="post.is_hot">
       </div>
       <div class="post_img">
-        <span>配图</span>
+        <span>配图:</span>
         <div class="img_list"  v-if="post.img">
-          <el-carousel trigger="click" height="150px">
+          <el-carousel trigger="click" >
             <el-carousel-item  v-for="(item,index) in post.img" :key="index">
               <a :href="item" target="_blank">
                 <img :src="item"  >
@@ -84,6 +86,7 @@
             </el-carousel-item>
           </el-carousel>
         </div>
+        <span v-else>无</span>
       </div>
       <div class="post_content" v-html="post.cid !=2?post.content:post.title"></div>
   </div>
@@ -209,7 +212,9 @@ export default {
         this.detailLoading = false;
         if (res.code == 200) {
           this.post = res.data;
-          this.post.img = res.data.img.split(",");
+          if (res.data.img) {
+            this.post.img = res.data.img.split(",");
+          }
         }
       });
     }
@@ -238,6 +243,13 @@ export default {
 }
 .content {
   font-size: 14px;
+  .author {
+    display: flex;
+    align-items: center;
+    span {
+      margin-right: 20px;
+    }
+  }
   .post_content {
     margin-top: 20px;
   }

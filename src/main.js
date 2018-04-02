@@ -1,31 +1,31 @@
-import Vue from 'vue'
+import Vue from "vue";
 
-import 'normalize.css/normalize.css' // A modern alternative to CSS resets
+import "normalize.css/normalize.css"; // A modern alternative to CSS resets
 
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
-import locale from 'element-ui/lib/locale/lang/en'
+import ElementUI from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
+import locale from "element-ui/lib/locale/lang/en";
 
-import '@/styles/index.scss' // global css
+import "@/styles/index.scss"; // global css
 
-import App from './App'
-import router from './router'
-import store from './store'
+import App from "./App";
+import router from "./router";
+import store from "./store";
 
-import '@/icons' // icon
-import '@/permission' // permission control
-import CheckboxRadio from 'vue-checkbox-radio';
+import "@/icons"; // icon
+import "@/permission"; // permission control
+// import CheckboxRadio from 'vue-checkbox-radio';
 
-Vue.use(CheckboxRadio);
+// Vue.use(CheckboxRadio);
 
-Vue.use(ElementUI, { locale })
+Vue.use(ElementUI, { locale });
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 new Vue({
-    el: '#app',
-    router,
-    store,
-    template: '<App/>',
-    components: { App }
-})
+  el: "#app",
+  router,
+  store,
+  template: "<App/>",
+  components: { App }
+});
