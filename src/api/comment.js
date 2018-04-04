@@ -24,3 +24,22 @@ export function getAllReply(params) {
 export function deleteReply(id) {
   return request({ url: "/api/reply/" + id, method: "post" });
 }
+
+export function getKeywords() {
+  return request({ url: "/api/keyword", method: "get" });
+}
+
+export function addKeywords(data) {
+  return request({
+    url: "/api/keyword",
+    method: "post",
+    params: JSON.parse(JSON.stringify(data))
+  });
+}
+
+export function deleteKeywords(id) {
+  return request({
+    url: "/api/keyword/" + id,
+    method: "delete"
+  });
+}
