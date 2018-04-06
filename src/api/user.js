@@ -33,3 +33,10 @@ export function disableUser(id) {
         method: "post",
     })
 }
+export function createAdmin(data) {
+    return request({
+        url: `/api/user`,
+        method: "post",
+        data: data
+    })
+}

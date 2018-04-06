@@ -14,7 +14,7 @@
       </el-table-column>
       <el-table-column prop="avatar" label="头像" width="200">
         <template slot-scope="scope">
-         <img :src="scope.row.avatar" >
+         <img :src="scope.row.avatar"  class="u-avatar">
         </template>
       </el-table-column>
       <el-table-column prop="mobile" label="手机">
@@ -74,7 +74,7 @@
         </el-input>
       </el-form-item>
       <el-form-item label="头像">
-             <img :src="form.avatar" alt="">
+             <img :src="form.avatar" alt="" class="avatar">
       </el-form-item>
       <el-form-item label="性别">
           <el-radio-group v-model="form.sex">
@@ -306,5 +306,14 @@ export default {
 }
 .input-with-select .el-input-group__prepend {
   background-color: #fff;
+}
+.u-avatar {
+  width: 80px;
+  height: 80px;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
 }
 </style>

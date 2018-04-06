@@ -8,6 +8,8 @@
         </el-select>
         <el-button slot="append" icon="el-icon-search" @click="getData(1)"></el-button>
       </el-input>
+            <el-button type="primary" @click="showUserDetail(0)">添加管理员</el-button>
+
     </div>
     <el-table :data="list" border style="width: 100%;margin-top:10px"  v-loading="listLoading">
       <el-table-column prop="id" label="ID" width="150">
@@ -18,7 +20,7 @@
       </el-table-column>
       <el-table-column prop="avatar" label="头像" width="200">
         <template slot-scope="scope">
-         <img :src="scope.row.avatar" >
+         <img :src="scope.row.avatar"  class="u-avatar">
         </template>
       </el-table-column>
       <el-table-column prop="mobile" label="手机">
@@ -60,28 +62,44 @@
       :total="total">
     </el-pagination>
   <el-dialog
-    title="管理员详情"
+    :title="form.id?'管理员详情':'添加管理员'"
     :visible.sync="formDialog"
     width="30%"
     >
         <el-form label-position='left'  label-width="120px" :model="form" v-loading="detailLoading" >
       <el-form-item label="手机号">
-        <el-input v-model="form.mobile" :disabled="true"></el-input>
+        <el-input v-model="form.mobile" :disabled="form.id"></el-input>
       </el-form-item>
       <el-form-item label="昵称">
         <el-input v-model="form.nickname" :disabled="nowID !=1"></el-input>
       </el-form-item>
       <el-form-item label="登录密码" v-if="nowID ==1">
-        <el-button   @click="passwordInput =!passwordInput" type="password" size="small">{{passwordInput?'取消修改':'修改密码'}}</el-button>
+         <el-input
+          v-if = "!form.id"
+          type="password"
+          placeholder="请输入密码"
+          v-model="form.password"
+          clearable>
+        </el-input>
+        <el-button v-else   @click="passwordInput =!passwordInput" type="password" size="small">{{passwordInput?'取消修改':'修改密码'}}</el-button>
         <el-input
           v-if = "passwordInput"
           placeholder="请输入密码"
+          
           v-model="form.password"
           clearable>
         </el-input>
       </el-form-item>
       <el-form-item label="头像">
-             <img :src="form.avatar" alt="">
+        <el-upload
+          class="avatar-uploader"
+          action="/api/upload"
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload">
+          <img v-if="form.avatar" :src="form.avatar" class="avatar">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
       </el-form-item>
       <el-form-item label="性别">
           <el-radio-group v-model="form.sex" :disabled="nowID !=1">
@@ -103,7 +121,7 @@
               :key="item.id"
               :label="item.name"
               :value="item.id"
-              :disabled="item.id==1">
+              :disabled="item.id==1||item.id==2">
             </el-option>
           </el-select>
       </el-form-item>
@@ -151,7 +169,8 @@ import {
   getUser,
   deleteUser,
   disableUser,
-  updateUserDetail
+  updateUserDetail,
+  createAdmin
 } from "@/api/user";
 import { allRoles } from "@/api/roles";
 
@@ -194,6 +213,17 @@ export default {
     this.getData();
   },
   methods: {
+    handleAvatarSuccess(res, file) {
+      this.form.avatar = "http://lider.demo" + res.data;
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === "image/jpeg";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isLt2M) {
+        this.$message.error("上传头像图片大小不能超过 2MB!");
+      }
+      return isJPG && isLt2M;
+    },
     getData(page) {
       this.listLoading = true;
       getAllUser({
@@ -227,15 +257,51 @@ export default {
       allRoles().then(res => {
         this.allRoles = res.data;
       });
+      if (!id) {
+        this.form = {
+          id: null,
+          avatar: "",
+          nickname: "",
+          mobile: "",
+          roles: 3,
+          sex: 1,
+          status: true,
+          type: 0,
+          password: ""
+        };
+        this.detailLoading = false;
+        return;
+      }
       getUser(id).then(res => {
         this.form = res.data;
         this.form.roles = res.data.roles.id;
         this.form.status = res.data.status ? true : false;
-
         this.detailLoading = false;
       });
     },
     updateUser(id) {
+      if (!id) {
+        let req = {
+          avatar: this.form.avatar,
+          nickname: this.form.nickname,
+          mobile: this.form.mobile,
+          roles: this.form.roles,
+          sex: this.form.sex,
+          status: this.form.status ? 1 : 0,
+          password: this.form.password
+        };
+        createAdmin(req).then(res => {
+          if (res.code == 200) {
+            this.$message({
+              message: res.message,
+              type: "success"
+            });
+            this.formDialog = false;
+            this.getData();
+          }
+        });
+        return;
+      }
       let req = {
         nickname: this.form.nickname,
         sex: this.form.sex,
@@ -323,5 +389,32 @@ export default {
 }
 .input-with-select .el-input-group__prepend {
   background-color: #fff;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+.u-avatar {
+  width: 80px;
+  height: 80px;
 }
 </style>

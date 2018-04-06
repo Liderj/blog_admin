@@ -80,6 +80,8 @@ import {
   getTop,
   getPost,
   deletePost,
+  toggleHot,
+  toggleComment,
   disablePost
 } from "@/api/post";
 export default {
