@@ -216,11 +216,11 @@ export default {
         this.allRoles = res.data;
       });
       getUser(id).then(res => {
-        this.formDialog = false;
+        // this.formDialog = false;
         this.form = res.data;
         this.form.roles = res.data.roles.id;
         this.form.status = res.data.status ? true : false;
-        // this.detailLoading = false;
+        this.detailLoading = false;
       });
     },
     updateUser(id) {
