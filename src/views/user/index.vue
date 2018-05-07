@@ -220,7 +220,7 @@ export default {
         this.form = res.data;
         this.form.roles = res.data.roles.id;
         this.form.status = res.data.status ? true : false;
-        this.detailLoading = false;
+        // this.detailLoading = false;
       });
     },
     updateUser(id) {
