@@ -216,6 +216,7 @@ export default {
         this.allRoles = res.data;
       });
       getUser(id).then(res => {
+        this.formDialog = false;
         this.form = res.data;
         this.form.roles = res.data.roles.id;
         this.form.status = res.data.status ? true : false;
@@ -263,11 +264,15 @@ export default {
       });
     },
     updateStatus(id, staus) {
-      this.$confirm(`此操作将 ${staus ? "使用户无法登录" : "解锁该用户账号"}, 是否继续?`, "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(() => {
+      this.$confirm(
+        `此操作将 ${staus ? "使用户无法登录" : "解锁该用户账号"}, 是否继续?`,
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      ).then(() => {
         const loading = this.$loading({
           lock: true,
           text: "Loading",
